@@ -37,7 +37,7 @@ class Core
 
 			//获取URL参数
 			array_shift($urlArray);
-			$param = $urlArray ? $urlArray : array();
+			$param = $urlArray ? addSlashesDeep($urlArray) : array();
 		}
 
 		//实例化控制器
@@ -66,14 +66,13 @@ class Core
 		}
 	}
 
-	//去掉转义符
 	public function stripSlashesDeep($value)
 	{
 		$value = is_array($value) ? array_map(array($this, 'stripSlashesDeep'), $value) : stripcslashes($value);
 		return $value;
 	}
 
-	//检测被转义字符并删除
+	//去掉转义符
 	public function removeMagicQuotes()
 	{
 		if(get_magic_quotes_gpc()){
@@ -83,6 +82,13 @@ class Core
 			$_SESSION = isset($_SESSION) ? $this->stripSlashesDeep($_SESSION) : '';
 		}
 	}
+
+	//用于对参数的值进行转义，防止注入
+    public function addSlashesDeep($value)
+    {
+        $value = is_array($value) ? array_map(array($this, 'addSlashesDeep'), $value) : addslashes($value);
+        return $value;
+    }
 
 	//检测自定义全局变量并移除
 	public function unregisterGlobals()
